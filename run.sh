@@ -10,4 +10,4 @@ git pull origin main
 docker build -t warehouse-management .
 
 ## run docker image
-docker run -d -p 4568:80 --name warehouse-management warehouse-management
+docker run -d -p 4569:80 --name warehouse-management warehouse-management
