@@ -19,7 +19,8 @@ import {
   Factory,
   Circle,
   Warehouse,
-  UserCog
+  UserCog,
+  BookOpen
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -92,7 +93,13 @@ export function Sidebar({ currentModule, onModuleChange, isCollapsed, onToggleCo
     { id: 'supplier-management', label: 'Quản lý nhà cung cấp', icon: <Factory className="w-5 h-5" /> },
     { id: 'user-config', label: 'Quản lý người dùng', icon: <UserCog className="w-5 h-5" /> },
     { id: 'service-fee', label: 'Phí dịch vụ kho', icon: <DollarSign className="w-5 h-5" /> },
-    { id: 'reports', label: 'Báo cáo & Thống kê', icon: <BarChart3 className="w-5 h-5" /> },
+    { id: 'reports', label: 'Dashboard & Báo cáo', icon: <BarChart3 className="w-5 h-5" /> },
+    { id: 'functional-spec', label: 'Đặc tả chức năng', icon: <BookOpen className="w-5 h-5" /> },
+    {
+      id: 'user-permissions',
+      label: 'Quản lý người dùng',
+      icon: <UserCog className="w-5 h-5" />,
+    },
   ];
 
   const toggleMenu = (menuId: string) => {

@@ -27,6 +27,7 @@ import { WarehouseLocations } from './components/modules/WarehouseLocations';
 import { InventoryManagement } from './components/modules/InventoryManagement';
 import { UserPermissions } from './components/modules/UserPermissions';
 import { WarehouseMap } from './components/modules/WarehouseMap';
+import { FunctionalSpec } from './components/modules/FunctionalSpec';
 
 export default function App() {
   const [currentModule, setCurrentModule] = useState('dashboard');
@@ -88,6 +89,8 @@ export default function App() {
         return <CustomerManagementTabs />;
       case 'supplier-management':
         return <SupplierManagement />;
+      case 'functional-spec':
+        return <FunctionalSpec />;
       default:
     }
   };
