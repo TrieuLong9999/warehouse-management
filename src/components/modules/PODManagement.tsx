@@ -1,235 +1,398 @@
-import React from 'react';
-import { DataTable, StatusBadge, Column } from '../DataTable';
-import { FilterBar } from '../FilterBar';
+import React, { useState } from 'react';
+import { Filter, Download, Search, Upload, FileText, Image, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
-import { KPICard } from '../KPICard';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
 import { Button } from '../ui/button';
-
-const podData = [
-  { maPOD: 'POD-2024-001', khachHang: 'Công ty ABC', ngayGiao: '01/11/2024', nguoiNhan: 'Nguyễn Văn A', trangThai: 'recovered', ngayThuHoi: '02/11/2024' },
-  { maPOD: 'POD-2024-002', khachHang: 'Công ty XYZ', ngayGiao: '02/11/2024', nguoiNhan: 'Trần Thị B', trangThai: 'pending', ngayThuHoi: '' },
-  { maPOD: 'POD-2024-003', khachHang: 'Doanh nghiệp 123', ngayGiao: '03/11/2024', nguoiNhan: 'Lê Văn C', trangThai: 'error', ngayThuHoi: '' },
-  { maPOD: 'POD-2024-004', khachHang: 'Công ty DEF', ngayGiao: '04/11/2024', nguoiNhan: 'Phạm Thị D', trangThai: 'recovered', ngayThuHoi: '05/11/2024' },
-  { maPOD: 'POD-2024-005', khachHang: 'Công ty ABC', ngayGiao: '05/11/2024', nguoiNhan: 'Hoàng Văn E', trangThai: 'pending', ngayThuHoi: '' },
-];
-
-const podStatusChart = [
-  { name: 'Đã thu hồi', value: 145, color: '#10b981' },
-  { name: 'Chưa thu hồi', value: 32, color: '#f59e0b' },
-  { name: 'Lỗi/Mất', value: 8, color: '#ef4444' },
-];
-
-const timeline = [
-  { date: '01/11/2024 09:30', event: 'Tạo phiếu giao', status: 'completed' },
-  { date: '01/11/2024 14:15', event: 'Xuất kho', status: 'completed' },
-  { date: '01/11/2024 16:45', event: 'Giao hàng thành công', status: 'completed' },
-  { date: '02/11/2024 10:20', event: 'Thu hồi POD', status: 'completed' },
-];
+import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Label } from '../ui/label';
 
 export function PODManagement() {
-  const columns: Column[] = [
-    { key: 'maPOD', label: 'Mã POD', width: '130px' },
-    { key: 'khachHang', label: 'Khách hàng' },
-    { key: 'ngayGiao', label: 'Ngày giao', width: '120px' },
-    { key: 'nguoiNhan', label: 'Người nhận' },
-    { 
-      key: 'trangThai', 
-      label: 'Trạng thái', 
-      width: '140px',
-      render: (value) => {
-        const statusMap: Record<string, string> = {
-          recovered: 'Đã thu hồi',
-          pending: 'Chưa thu hồi',
-          error: 'Lỗi'
-        };
-        return <StatusBadge status={statusMap[value]} type={value === 'recovered' ? 'completed' : value === 'error' ? 'cancelled' : 'pending'} />;
-      }
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const podRecords = [
+    {
+      id: 'POD-2024-001',
+      orderNumber: 'OUT-2024-001',
+      customer: 'Công ty TNHH ABC',
+      deliveryDate: '21/11/2024',
+      recipient: 'Nguyễn Văn X',
+      status: 'Đã xác nhận',
+      podType: 'Chữ ký điện tử',
+      uploadedBy: 'Nguyễn Văn B',
     },
-    { key: 'ngayThuHoi', label: 'Ngày thu hồi', width: '130px' },
+    {
+      id: 'POD-2024-002',
+      orderNumber: 'OUT-2024-002',
+      customer: 'Doanh nghiệp XYZ',
+      deliveryDate: '21/11/2024',
+      recipient: 'Trần Thị Y',
+      status: 'Chờ xác nhận',
+      podType: 'Ảnh chụp',
+      uploadedBy: 'Trần Thị C',
+    },
+    {
+      id: 'POD-2024-003',
+      orderNumber: 'OUT-2024-003',
+      customer: 'Siêu thị DEF',
+      deliveryDate: '20/11/2024',
+      recipient: 'Lê Văn Z',
+      status: 'Đã xác nhận',
+      podType: 'PDF',
+      uploadedBy: 'Lê Văn D',
+    },
+    {
+      id: 'POD-2024-004',
+      orderNumber: 'OUT-2024-004',
+      customer: 'Cửa hàng GHI',
+      deliveryDate: '20/11/2024',
+      recipient: 'Phạm Thị T',
+      status: 'Thiếu thông tin',
+      podType: 'Ảnh chụp',
+      uploadedBy: 'Phạm Thị E',
+    },
+    {
+      id: 'POD-2024-005',
+      orderNumber: 'OUT-2024-005',
+      customer: 'Nhà phân phối JKL',
+      deliveryDate: '19/11/2024',
+      recipient: 'Hoàng Văn U',
+      status: 'Đã xác nhận',
+      podType: 'Chữ ký điện tử',
+      uploadedBy: 'Hoàng Văn F',
+    },
   ];
 
-  const filterConfig = {
-    dateFrom: {
-      type: 'date' as const,
-      label: 'Từ ngày',
-      placeholder: 'Chọn ngày',
-    },
-    dateTo: {
-      type: 'date' as const,
-      label: 'Đến ngày',
-      placeholder: 'Chọn ngày',
-    },
-    customer: {
-      type: 'select' as const,
-      label: 'Khách hàng',
-      placeholder: 'Chọn khách hàng',
-      options: [
-        { label: 'Tất cả', value: 'all' },
-        { label: 'Công ty ABC', value: 'abc' },
-        { label: 'Công ty XYZ', value: 'xyz' },
-      ],
-    },
-    status: {
-      type: 'select' as const,
-      label: 'Trạng thái',
-      placeholder: 'Chọn trạng thái',
-      options: [
-        { label: 'Tất cả', value: 'all' },
-        { label: 'Đã thu hồi', value: 'recovered' },
-        { label: 'Chưa thu hồi', value: 'pending' },
-        { label: 'Lỗi', value: 'error' },
-      ],
-    },
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Đã xác nhận':
+        return 'bg-green-100 text-green-800';
+      case 'Chờ xác nhận':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Thiếu thông tin':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getPodTypeIcon = (type: string) => {
+    switch (type) {
+      case 'PDF':
+        return <FileText className="w-4 h-4" />;
+      case 'Ảnh chụp':
+        return <Image className="w-4 h-4" />;
+      case 'Chữ ký điện tử':
+        return <CheckCircle className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[28px] font-bold text-foreground">Quản lý chứng từ POD</h1>
-          <p className="text-muted-foreground mt-1">Theo dõi và quản lý POD (Proof of Delivery)</p>
+          <h1 className="text-gray-900 mb-1">Quản lý POD</h1>
+          <p className="text-gray-500" style={{ fontSize: '14px' }}>
+            Quản lý chứng từ giao nhận hàng hóa (Proof of Delivery)
+          </p>
         </div>
-      </div>
+        <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+          <DialogTrigger asChild>
+            <Button style={{ backgroundColor: '#0057FF' }}>
+              <Upload className="w-4 h-4 mr-2" />
+              Tải lên POD
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl" aria-describedby={undefined}>
+            <DialogHeader>
+              <DialogTitle>Tải lên chứng từ POD</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Mã đơn hàng *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn đơn hàng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="out1">OUT-2024-001 - Công ty TNHH ABC</SelectItem>
+                    <SelectItem value="out2">OUT-2024-002 - Doanh nghiệp XYZ</SelectItem>
+                    <SelectItem value="out3">OUT-2024-003 - Siêu thị DEF</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <KPICard
-          title="Đã thu hồi"
-          value="145"
-          icon={CheckCircle}
-          color="#10b981"
-        />
-        <KPICard
-          title="Chưa thu hồi"
-          value="32"
-          icon={Clock}
-          color="#f59e0b"
-        />
-        <KPICard
-          title="Lỗi/Mất POD"
-          value="8"
-          icon={XCircle}
-          color="#ef4444"
-        />
-      </div>
-
-      {/* Filters */}
-      <FilterBar 
-        filters={filterConfig}
-        onSearch={() => console.log('Search')}
-        onReset={() => console.log('Reset')}
-      />
-
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Table */}
-        <div className="lg:col-span-2">
-          <DataTable 
-            columns={columns} 
-            data={podData}
-            onEdit={(row) => console.log('Edit', row)}
-            onDelete={(row) => console.log('Delete', row)}
-            onView={(row) => console.log('View', row)}
-          />
-        </div>
-
-        {/* POD Status Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tỷ lệ thu hồi POD</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie
-                  data={podStatusChart}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}\n${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {podStatusChart.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="mt-4 space-y-2">
-              {podStatusChart.map((item) => (
-                <div key={item.name} className="flex items-center justify-between text-[14px]">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-3 h-3 rounded-full" 
-                      style={{ backgroundColor: item.color }}
-                    />
-                    <span>{item.name}</span>
-                  </div>
-                  <span className="font-medium">{item.value}</span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Tên người nhận *</Label>
+                  <Input placeholder="Nhập tên người nhận" />
                 </div>
-              ))}
-            </div>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button className="w-full mt-4 bg-[#0046FF] hover:bg-[#003ACC]">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Xem chi tiết POD
+                <div className="space-y-2">
+                  <Label>Ngày giao hàng *</Label>
+                  <Input type="date" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Loại POD *</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn loại POD" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="signature">Chữ ký điện tử</SelectItem>
+                    <SelectItem value="photo">Ảnh chụp</SelectItem>
+                    <SelectItem value="pdf">PDF</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Tải lên file *</Label>
+                <div className="border-2 border-dashed rounded-lg p-8 text-center" style={{ borderColor: '#0057FF' }}>
+                  <Upload className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+                  <p className="text-gray-600 mb-1">Kéo thả file hoặc click để chọn</p>
+                  <p className="text-gray-400" style={{ fontSize: '12px' }}>
+                    Hỗ trợ: JPG, PNG, PDF (Tối đa 10MB)
+                  </p>
+                  <Button variant="outline" className="mt-4">
+                    Chọn file
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button variant="outline" onClick={() => setIsUploadModalOpen(false)}>
+                  Hủy
                 </Button>
-              </SheetTrigger>
-              <SheetContent className="w-[500px] sm:w-[540px]">
-                <SheetHeader>
-                  <SheetTitle>Chi tiết POD-2024-001</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6 space-y-6">
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2 text-[14px]">
-                      <div className="text-muted-foreground">Khách hàng:</div>
-                      <div className="font-medium">Công ty ABC</div>
-                      <div className="text-muted-foreground">Người nhận:</div>
-                      <div className="font-medium">Nguyễn Văn A</div>
-                      <div className="text-muted-foreground">Ngày giao:</div>
-                      <div className="font-medium">01/11/2024</div>
-                      <div className="text-muted-foreground">Trạng thái:</div>
-                      <div><StatusBadge status="Đã thu hồi" type="completed" /></div>
-                    </div>
-                  </div>
+                <Button style={{ backgroundColor: '#0057FF' }}>
+                  Tải lên POD
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-                  <div className="border-t border-border pt-4">
-                    <h3 className="font-medium mb-4">Timeline thu hồi</h3>
-                    <div className="space-y-4">
-                      {timeline.map((item, index) => (
-                        <div key={index} className="flex gap-3">
-                          <div className="flex flex-col items-center">
-                            <div 
-                              className={`w-3 h-3 rounded-full ${
-                                item.status === 'completed' ? 'bg-[#10b981]' : 'bg-gray-300'
-                              }`}
-                            />
-                            {index < timeline.length - 1 && (
-                              <div className="w-0.5 h-12 bg-gray-200" />
-                            )}
-                          </div>
-                          <div className="flex-1 pb-4">
-                            <div className="text-[14px] font-medium">{item.event}</div>
-                            <div className="text-[12px] text-muted-foreground">{item.date}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
+                  Đã xác nhận
+                </p>
+                <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
+                  234
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
+                  Chờ xác nhận
+                </p>
+                <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
+                  18
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-yellow-50">
+                <FileText className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
+                  Thiếu thông tin
+                </p>
+                <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
+                  5
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-red-50">
+                <FileText className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
+                  Tổng POD tháng này
+                </p>
+                <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
+                  257
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-50">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input placeholder="Tìm kiếm theo mã POD, đơn hàng, khách hàng..." className="pl-9" />
+            </div>
+            <Select defaultValue="all">
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="confirmed">Đã xác nhận</SelectItem>
+                <SelectItem value="pending">Chờ xác nhận</SelectItem>
+                <SelectItem value="missing">Thiếu thông tin</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select defaultValue="all-type">
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Loại POD" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-type">Tất cả loại</SelectItem>
+                <SelectItem value="signature">Chữ ký điện tử</SelectItem>
+                <SelectItem value="photo">Ảnh chụp</SelectItem>
+                <SelectItem value="pdf">PDF</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <Filter className="w-4 h-4 mr-2" />
+              Lọc
+            </Button>
+            <Button variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Xuất Excel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Danh sách POD</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Mã POD</TableHead>
+                <TableHead>Mã đơn hàng</TableHead>
+                <TableHead>Khách hàng</TableHead>
+                <TableHead>Ngày giao</TableHead>
+                <TableHead>Người nhận</TableHead>
+                <TableHead>Loại POD</TableHead>
+                <TableHead>Người tải lên</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {podRecords.map((pod) => (
+                <TableRow key={pod.id}>
+                  <TableCell>
+                    <span className="text-blue-600" style={{ fontWeight: '500' }}>
+                      {pod.id}
+                    </span>
+                  </TableCell>
+                  <TableCell>{pod.orderNumber}</TableCell>
+                  <TableCell>{pod.customer}</TableCell>
+                  <TableCell>{pod.deliveryDate}</TableCell>
+                  <TableCell>{pod.recipient}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getPodTypeIcon(pod.podType)}
+                      <span>{pod.podType}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>{pod.uploadedBy}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(pod.status)} variant="secondary">
+                      {pod.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm">
+                        Xem
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        Tải về
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+            <p className="text-gray-500" style={{ fontSize: '14px' }}>
+              Hiển thị 1-5 của 257 POD
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" disabled>
+                Trước
+              </Button>
+              <Button variant="outline" size="sm" style={{ backgroundColor: '#0057FF', color: 'white' }}>
+                1
+              </Button>
+              <Button variant="outline" size="sm">
+                2
+              </Button>
+              <Button variant="outline" size="sm">
+                3
+              </Button>
+              <Button variant="outline" size="sm">
+                Sau
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

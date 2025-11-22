@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Filter, Download, Search, Eye } from 'lucide-react';
+import { Plus, Filter, Download, Search, Package2, Truck, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -21,65 +21,65 @@ import {
 } from '../ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
-export function OrderManagement() {
+export function Outbound() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const orders = [
+  const outboundOrders = [
     {
-      id: 'ORD-2024-001',
+      id: 'OUT-2024-001',
       customer: 'Công ty TNHH ABC',
-      type: 'Nhập kho',
-      createdDate: '21/11/2024 10:30',
-      expectedDate: '23/11/2024',
-      items: 125,
-      totalValue: '125,000,000',
-      status: 'Đang xử lý',
+      orderNumber: 'SO-2024-5678',
+      requestDate: '21/11/2024',
+      items: 87,
+      status: 'Đang lấy hàng',
+      warehouse: 'Kho A - Hà Nội',
+      picker: 'Nguyễn Văn B',
       priority: 'Cao',
     },
     {
-      id: 'ORD-2024-002',
+      id: 'OUT-2024-002',
       customer: 'Doanh nghiệp XYZ',
-      type: 'Xuất kho',
-      createdDate: '21/11/2024 11:15',
-      expectedDate: '22/11/2024',
-      items: 87,
-      totalValue: '87,500,000',
-      status: 'Chờ xác nhận',
+      orderNumber: 'SO-2024-5679',
+      requestDate: '21/11/2024',
+      items: 56,
+      status: 'Chờ đóng gói',
+      warehouse: 'Kho B - TP.HCM',
+      picker: 'Trần Thị C',
       priority: 'Trung bình',
     },
     {
-      id: 'ORD-2024-003',
+      id: 'OUT-2024-003',
       customer: 'Siêu thị DEF',
-      type: 'Xuất kho',
-      createdDate: '21/11/2024 14:20',
-      expectedDate: '24/11/2024',
+      orderNumber: 'SO-2024-5680',
+      requestDate: '21/11/2024',
       items: 234,
-      totalValue: '345,000,000',
-      status: 'Hoàn thành',
-      priority: 'Thấp',
-    },
-    {
-      id: 'ORD-2024-004',
-      customer: 'Cửa hàng GHI',
-      type: 'Nhập kho',
-      createdDate: '20/11/2024 09:00',
-      expectedDate: '22/11/2024',
-      items: 56,
-      totalValue: '56,000,000',
-      status: 'Đang xử lý',
+      status: 'Đã đóng gói',
+      warehouse: 'Kho A - Hà Nội',
+      picker: 'Lê Văn D',
       priority: 'Cao',
     },
     {
-      id: 'ORD-2024-005',
+      id: 'OUT-2024-004',
+      customer: 'Cửa hàng GHI',
+      orderNumber: 'SO-2024-5681',
+      requestDate: '22/11/2024',
+      items: 123,
+      status: 'Đang giao hàng',
+      warehouse: 'Kho C - Đà Nẵng',
+      picker: 'Phạm Thị E',
+      priority: 'Thấp',
+    },
+    {
+      id: 'OUT-2024-005',
       customer: 'Nhà phân phối JKL',
-      type: 'Xuất kho',
-      createdDate: '20/11/2024 15:45',
-      expectedDate: '23/11/2024',
+      orderNumber: 'SO-2024-5682',
+      requestDate: '22/11/2024',
       items: 312,
-      totalValue: '468,000,000',
-      status: 'Đã hủy',
+      status: 'Hoàn thành',
+      warehouse: 'Kho B - TP.HCM',
+      picker: 'Hoàng Văn F',
       priority: 'Trung bình',
     },
   ];
@@ -88,12 +88,12 @@ export function OrderManagement() {
     switch (status) {
       case 'Hoàn thành':
         return 'bg-green-100 text-green-800';
-      case 'Đang xử lý':
+      case 'Đang lấy hàng':
+      case 'Chờ đóng gói':
+      case 'Đã đóng gói':
         return 'bg-blue-100 text-blue-800';
-      case 'Chờ xác nhận':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Đã hủy':
-        return 'bg-red-100 text-red-800';
+      case 'Đang giao hàng':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -117,21 +117,21 @@ export function OrderManagement() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-gray-900 mb-1">Quản lý đơn hàng</h1>
+          <h1 className="text-gray-900 mb-1">Quản lý xuất kho</h1>
           <p className="text-gray-500" style={{ fontSize: '14px' }}>
-            Quản lý tổng thể các đơn hàng nhập xuất kho
+            Lấy hàng, đóng gói và giao hàng
           </p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogTrigger asChild>
             <Button style={{ backgroundColor: '#0057FF' }}>
               <Plus className="w-4 h-4 mr-2" />
-              Tạo đơn hàng
+              Tạo phiếu xuất kho
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" aria-describedby={undefined}>
             <DialogHeader>
-              <DialogTitle>Tạo đơn hàng mới</DialogTitle>
+              <DialogTitle>Tạo phiếu xuất kho mới</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -149,23 +149,24 @@ export function OrderManagement() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Loại đơn hàng *</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn loại" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="inbound">Nhập kho</SelectItem>
-                      <SelectItem value="outbound">Xuất kho</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Số đơn hàng</Label>
+                  <Input placeholder="SO-2024-XXXX" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Ngày dự kiến *</Label>
-                  <Input type="date" />
+                  <Label>Kho xuất *</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn kho" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="wh1">Kho A - Hà Nội</SelectItem>
+                      <SelectItem value="wh2">Kho B - TP.HCM</SelectItem>
+                      <SelectItem value="wh3">Kho C - Đà Nẵng</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Độ ưu tiên</Label>
@@ -182,23 +183,55 @@ export function OrderManagement() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Kho</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn kho" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="wh1">Kho A - Hà Nội</SelectItem>
-                    <SelectItem value="wh2">Kho B - TP.HCM</SelectItem>
-                    <SelectItem value="wh3">Kho C - Đà Nẵng</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Tabs defaultValue="manual" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="manual">Nhập thủ công</TabsTrigger>
+                  <TabsTrigger value="scan">Quét mã vạch</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manual" className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Thêm sản phẩm</Label>
+                    <div className="flex gap-2">
+                      <Select>
+                        <SelectTrigger className="flex-1">
+                          <SelectValue placeholder="Chọn sản phẩm" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="sku1">SKU-12345 - Sản phẩm A</SelectItem>
+                          <SelectItem value="sku2">SKU-67890 - Sản phẩm B</SelectItem>
+                          <SelectItem value="sku3">SKU-11223 - Sản phẩm C</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input type="number" placeholder="Số lượng" className="w-32" />
+                      <Button style={{ backgroundColor: '#0057FF' }}>Thêm</Button>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="scan" className="space-y-4">
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center" style={{ borderColor: '#0057FF' }}>
+                    <Package2 className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600 mb-2">Sử dụng máy quét mã vạch</p>
+                    <Input placeholder="Quét hoặc nhập mã vạch..." className="max-w-md mx-auto" />
+                  </div>
+                </TabsContent>
+              </Tabs>
 
-              <div className="space-y-2">
-                <Label>Ghi chú</Label>
-                <Textarea placeholder="Nhập ghi chú về đơn hàng..." rows={4} />
+              <div className="border rounded-lg p-4">
+                <Label className="mb-2 block">Danh sách sản phẩm</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                      <p style={{ fontSize: '14px', fontWeight: '500' }}>SKU-12345 - Sản phẩm A</p>
+                      <p className="text-gray-500" style={{ fontSize: '12px' }}>Kho: A-01-B-03</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span style={{ fontSize: '14px' }}>Số lượng: 50</span>
+                      <Button variant="ghost" size="sm" className="text-red-600">
+                        Xóa
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
@@ -206,7 +239,7 @@ export function OrderManagement() {
                   Hủy
                 </Button>
                 <Button style={{ backgroundColor: '#0057FF' }}>
-                  Tạo đơn hàng
+                  Tạo phiếu xuất kho
                 </Button>
               </div>
             </div>
@@ -221,15 +254,15 @@ export function OrderManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
-                  Tổng đơn hôm nay
+                  Đang lấy hàng
                 </p>
                 <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
-                  45
+                  12
                 </p>
               </div>
-              <Badge style={{ backgroundColor: '#0057FF' }} className="text-white">
-                +12%
-              </Badge>
+              <div className="p-3 rounded-lg bg-blue-50">
+                <Package2 className="w-6 h-6 text-blue-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -239,15 +272,15 @@ export function OrderManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
-                  Chờ xác nhận
+                  Chờ đóng gói
                 </p>
                 <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
                   8
                 </p>
               </div>
-              <Badge className="bg-yellow-100 text-yellow-800">
-                Cần xử lý
-              </Badge>
+              <div className="p-3 rounded-lg bg-yellow-50">
+                <Package2 className="w-6 h-6 text-yellow-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -257,15 +290,15 @@ export function OrderManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
-                  Đang xử lý
+                  Đang giao hàng
                 </p>
                 <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
-                  23
+                  15
                 </p>
               </div>
-              <Badge className="bg-blue-100 text-blue-800">
-                Trong tiến trình
-              </Badge>
+              <div className="p-3 rounded-lg bg-purple-50">
+                <Truck className="w-6 h-6 text-purple-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -275,15 +308,15 @@ export function OrderManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-500 mb-1" style={{ fontSize: '14px' }}>
-                  Giá trị đơn hàng
+                  Hoàn thành hôm nay
                 </p>
                 <p className="text-gray-900" style={{ fontSize: '24px', fontWeight: '600' }}>
-                  1.2B
+                  45
                 </p>
               </div>
-              <Badge className="bg-green-100 text-green-800">
-                VNĐ
-              </Badge>
+              <div className="p-3 rounded-lg bg-green-50">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -295,33 +328,24 @@ export function OrderManagement() {
           <div className="flex items-center gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input placeholder="Tìm kiếm theo mã đơn, khách hàng..." className="pl-9" />
+              <Input placeholder="Tìm kiếm theo mã phiếu, khách hàng..." className="pl-9" />
             </div>
-            <Select defaultValue="all-type">
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Loại" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all-type">Tất cả loại</SelectItem>
-                <SelectItem value="inbound">Nhập kho</SelectItem>
-                <SelectItem value="outbound">Xuất kho</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select defaultValue="all-status">
+            <Select defaultValue="all">
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Trạng thái" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all-status">Tất cả trạng thái</SelectItem>
-                <SelectItem value="pending">Chờ xác nhận</SelectItem>
-                <SelectItem value="processing">Đang xử lý</SelectItem>
+                <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                <SelectItem value="picking">Đang lấy hàng</SelectItem>
+                <SelectItem value="packing">Chờ đóng gói</SelectItem>
+                <SelectItem value="packed">Đã đóng gói</SelectItem>
+                <SelectItem value="shipping">Đang giao hàng</SelectItem>
                 <SelectItem value="completed">Hoàn thành</SelectItem>
-                <SelectItem value="cancelled">Đã hủy</SelectItem>
               </SelectContent>
             </Select>
             <Select defaultValue="all-priority">
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Ưu tiên" />
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Độ ưu tiên" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all-priority">Tất cả</SelectItem>
@@ -345,26 +369,26 @@ export function OrderManagement() {
       {/* Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Danh sách đơn hàng</CardTitle>
+          <CardTitle>Danh sách phiếu xuất kho</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Mã đơn hàng</TableHead>
+                <TableHead>Mã phiếu</TableHead>
                 <TableHead>Khách hàng</TableHead>
-                <TableHead>Loại</TableHead>
-                <TableHead>Ngày tạo</TableHead>
-                <TableHead>Ngày dự kiến</TableHead>
+                <TableHead>Số đơn hàng</TableHead>
+                <TableHead>Ngày yêu cầu</TableHead>
                 <TableHead>Số lượng</TableHead>
-                <TableHead>Giá trị</TableHead>
+                <TableHead>Kho xuất</TableHead>
+                <TableHead>Người lấy hàng</TableHead>
                 <TableHead>Ưu tiên</TableHead>
                 <TableHead>Trạng thái</TableHead>
                 <TableHead>Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
+              {outboundOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell>
                     <span className="text-blue-600" style={{ fontWeight: '500' }}>
@@ -372,13 +396,11 @@ export function OrderManagement() {
                     </span>
                   </TableCell>
                   <TableCell>{order.customer}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{order.type}</Badge>
-                  </TableCell>
-                  <TableCell>{order.createdDate}</TableCell>
-                  <TableCell>{order.expectedDate}</TableCell>
+                  <TableCell>{order.orderNumber}</TableCell>
+                  <TableCell>{order.requestDate}</TableCell>
                   <TableCell>{order.items} items</TableCell>
-                  <TableCell>{order.totalValue} đ</TableCell>
+                  <TableCell>{order.warehouse}</TableCell>
+                  <TableCell>{order.picker}</TableCell>
                   <TableCell>
                     <Badge className={getPriorityColor(order.priority)} variant="secondary">
                       {order.priority}
@@ -391,7 +413,7 @@ export function OrderManagement() {
                   </TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm">
-                      <Eye className="w-4 h-4" />
+                      Chi tiết
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -402,7 +424,7 @@ export function OrderManagement() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4 pt-4 border-t">
             <p className="text-gray-500" style={{ fontSize: '14px' }}>
-              Hiển thị 1-5 của 324 đơn hàng
+              Hiển thị 1-5 của 98 phiếu
             </p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled>
